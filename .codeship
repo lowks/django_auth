@@ -1,9 +1,15 @@
 #!/bin/bash
 
 function codeship_setup {
-    echo TODO
+    virtualenv -p `which python3` ~/.python3_venv
+    source ~/.python3_venv/bin/activate
+    pip install -r requirements.txt
+    python manage.py migrate --noinput
 }
 
 function codeship_test {
-    echo TODO
+    flake8 .
+    coverage run -m py.test --ds=kagiso_auth.tests.settings.ci
+    pip install codecov
+    codecov --token=$CODESHIP_TOKEN
 }
