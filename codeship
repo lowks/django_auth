@@ -1,0 +1,9 @@
+#!/bin/bash
+
+function codeship_setup {
+    echo TODO
+}
+
+function codeship_test {
+    echo TODO
+}
