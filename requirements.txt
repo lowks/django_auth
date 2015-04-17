@@ -11,6 +11,7 @@ mock==1.0.1
 model-mommy==1.2.4
 pep8==1.5.7
 pep8-naming==0.2.2
+psycopg2==2.6
 py==1.4.26
 pyflakes==0.8.1
 pytest==2.7.0

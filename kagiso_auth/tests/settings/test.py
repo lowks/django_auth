@@ -29,11 +29,13 @@ WSGI_APPLICATION = 'kagiso_auth.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'kagiso_auth',
+        'USER': os.getenv('USER'),
+        'PASSWORD': 'password',
+        'ATOMIC_REQUESTS': True,
     }
 }
 
