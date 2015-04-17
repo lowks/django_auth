@@ -1,33 +1,6 @@
-"""
-Django settings for django_auth project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
-"""
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '5f&zf!c+9265$0*l8(kqm)9b*z_k*pg1t5%@s$&65ymdo7tx!n'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
-# Application definition
+SECRET_KEY = '^7jcx7^h#b@%a76lr@a2!7xj#@4@5ayuyan9c$y#(_(8l3)_%t'
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -49,9 +22,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'django_auth.urls'
+ROOT_URLCONF = 'kagiso_auth.urls'
 
-WSGI_APPLICATION = 'django_auth.wsgi.application'
+WSGI_APPLICATION = 'kagiso_auth.wsgi.application'
 
 
 # Database
@@ -60,7 +33,7 @@ WSGI_APPLICATION = 'django_auth.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': 'db.sqlite3',
     }
 }
 
