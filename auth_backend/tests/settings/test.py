@@ -9,7 +9,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'kagiso_auth',
+    'auth_backend',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -22,9 +22,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'kagiso_auth.urls'
+ROOT_URLCONF = 'auth_backend.urls'
 
-WSGI_APPLICATION = 'kagiso_auth.wsgi.application'
+WSGI_APPLICATION = 'auth_backend.wsgi.application'
 
 
 # Database
@@ -32,7 +32,7 @@ WSGI_APPLICATION = 'kagiso_auth.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'kagiso_auth',
+        'NAME': 'auth_backend',
         'USER': os.getenv('USER'),
         'PASSWORD': 'password',
         'ATOMIC_REQUESTS': True,
