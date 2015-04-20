@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
+from .managers import AuthManager
+
 # TODO: possible fields to add to CAS
 # first_name, last_name, is_staff, is_superadmin
 
@@ -11,6 +13,8 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=250, unique=True)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
+
+    objects = AuthManager()
 
     @property
     def is_staff(self):
