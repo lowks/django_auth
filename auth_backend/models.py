@@ -10,6 +10,7 @@ from .managers import AuthManager
 class KagisoUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
+    id = models.IntegerField(primary_key=True)
     email = models.EmailField(max_length=250, unique=True)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
