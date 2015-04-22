@@ -1,6 +1,8 @@
 from dateutil import parser
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from jsonfield import JSONField
 
 from . import auth_api_client
@@ -87,3 +89,10 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         self.email = data['email']
         self.profile = data['profile']
         self.modified = parser.parse(data['modified'])
+
+
+@receiver(pre_delete, sender=KagisoUser)
+def delete_user_from_cas(sender, instance, using, **kwargs):
+    status, data = auth_api_client.call(
+        'users/{id}'.format(id=instance.id), 'DELETE')
+    assert status == 204
