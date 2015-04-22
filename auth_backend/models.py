@@ -8,8 +8,8 @@ from jsonfield import JSONField
 from . import auth_api_client
 from .managers import AuthManager
 
-# TODO: possible fields to add to CAS
-# first_name, last_name, is_staff, is_superadmin
+# TODO: possible fields to add to CAS:
+# first_name, last_name, is_staff, is_superuser
 
 
 class KagisoUser(AbstractBaseUser, PermissionsMixin):
