@@ -1,7 +1,7 @@
 from dateutil import parser
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 from jsonfield import JSONField
 
@@ -49,14 +49,6 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         self.raw_password = raw_password
         # TODO: Update password on CAS?
 
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self._create_user_in_db_and_cas()
-        else:
-            self._update_user_in_cas()
-
-        super().save()
-
     def _create_user_in_db_and_cas(self):
         payload = {
             'email': self.email,
@@ -92,7 +84,15 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
 
 
 @receiver(pre_delete, sender=KagisoUser)
-def delete_user_from_cas(sender, instance, using, **kwargs):
+def delete_user_from_cas(sender, instance, *args, **kwargs):
     status, data = auth_api_client.call(
         'users/{id}'.format(id=instance.id), 'DELETE')
     assert status == 204
+
+
+@receiver(pre_save, sender=KagisoUser)
+def save_user_to_cas(sender, instance, *args, **kwargs):
+    if not instance.id:
+        instance._create_user_in_db_and_cas()
+    else:
+        instance._update_user_in_cas()
