@@ -18,6 +18,7 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     profile = JSONField(null=True)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField()
+    modified = models.DateTimeField()
 
     confirmation_token = None
     raw_password = None
@@ -47,14 +48,14 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         # TODO: Update password on CAS?
 
     def save(self, *args, **kwargs):
-        if self.id:
-            self._create_for_db_and_cas()
+        if not self.id:
+            self._create_user_in_db_and_cas()
         else:
-            self.update_cas_user()
+            self._update_user_in_cas()
 
         super().save()
 
-    def _create_for_db_and_cas(self):
+    def _create_user_in_db_and_cas(self):
         payload = {
             'email': self.email,
             'password': self.raw_password,
@@ -66,8 +67,23 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         assert status == 201
 
         self.id = data['id']
+        self.email = data['email']
+        self.profile = data['profile']
         self.confirmation_token = data['confirmation_token']
         self.date_joined = parser.parse(data['created'])
+        self.modified = parser.parse(data['modified'])
 
-    def _update_cas_user(self):
-        pass
+    def _update_user_in_cas(self):
+        payload = {
+            'email': self.email,
+            'profile': self.profile,
+        }
+
+        status, data = auth_api_client.call(
+            'users/{id}'.format(id=self.id), 'PUT', payload)
+
+        assert status == 200
+
+        self.email = data['email']
+        self.profile = data['profile']
+        self.modified = parser.parse(data['modified'])

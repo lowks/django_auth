@@ -28,7 +28,6 @@ class KagisoUserTest(TestCase):
             'confirmation_token': '49:1YkTO2:1VuxvGJre66xqQj6rkEXewmVs08',
             'email_confirmed': None,
             'profile': profile,
-            'demographics': None,
             'created': '2015-04-21T08:18:30.368602Z',
             'modified': '2015-04-21T08:18:30.374410Z'
         }
@@ -44,16 +43,97 @@ class KagisoUserTest(TestCase):
         # -------Act--------------
         # ------------------------
 
-        result = mommy.make(models.KagisoUser, email=email, profile=profile)
+        user = mommy.make(
+            models.KagisoUser,
+            id=None,
+            email=email,
+            profile=profile
+        )
 
         # ------------------------
         # -------Assert----------
         # ------------------------
+
+        # Confirmation tokens are saved in memory only.
+        assert user.confirmation_token == data['confirmation_token']
+
+        result = models.KagisoUser.objects.get(id=user.id)
+
         assert len(responses.calls) == 1
         assert responses.calls[0].request.url == url
 
         assert result.id == data['id']
         assert result.email == data['email']
-        assert result.confirmation_token == data['confirmation_token']
+        assert result.confirmation_token is None
         assert result.profile == data['profile']
         assert result.date_joined == parser.parse(data['created'])
+        assert result.modified == parser.parse(data['modified'])
+
+    @responses.activate
+    def test_update(self):
+        # ------------------------
+        # -------Arrange----------
+        # ------------------------
+
+        url = 'https://auth.kagiso.io/api/v1/users/.json'
+
+        data = {
+            'id': 1,
+            'email': 'test@email.com',
+            'confirmation_token': '49:1YkTO2:1VuxvGJre66xqQj6rkEXewmVs08',
+            'email_confirmed': None,
+            'profile': None,
+            'created': '2015-04-21T08:18:30.368602Z',
+            'modified': '2015-04-21T08:18:30.374410Z'
+        }
+
+        responses.add(
+            responses.POST,
+            url,
+            body=json.dumps(data),
+            status=201,
+        )
+        user = mommy.make(models.KagisoUser, id=None)
+
+        url = 'https://auth.kagiso.io/api/v1/users/1/.json'
+        print(url)
+        email = 'test@email.com'
+        profile = {
+            'is_superadmin': True
+        }
+
+        data = {
+            'id': 1,
+            'email': email,
+            'profile': profile,
+            'created': '2015-04-21T08:18:30.368602Z',
+            'modified': '2015-04-21T08:18:30.374410Z'
+        }
+
+        responses.add(
+            responses.PUT,
+            url,
+            body=json.dumps(data),
+            status=200,
+        )
+
+        # ------------------------
+        # -------Act--------------
+        # ------------------------
+
+        user.email = email
+        user.profile = profile
+        user.save()
+
+        # ------------------------
+        # -------Assert----------
+        # ------------------------
+        result = models.KagisoUser.objects.get(id=user.id)
+
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
+
+        assert result.id == data['id']
+        assert result.email == data['email']
+        assert result.profile == data['profile']
+        assert result.modified == parser.parse(data['modified'])
