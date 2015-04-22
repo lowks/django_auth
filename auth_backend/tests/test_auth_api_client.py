@@ -1,9 +1,9 @@
 import json
 
+from django.test import TestCase
 import pytest
 import requests
 import responses
-from django.test import TestCase
 
 from .. import auth_api_client
 

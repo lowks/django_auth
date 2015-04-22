@@ -1,9 +1,9 @@
 import json
 
-import responses
+from dateutil import parser
 from django.test import TestCase
 from model_mommy import mommy
-
+import responses
 
 from .. import models
 
@@ -11,12 +11,12 @@ from .. import models
 class KagisoUserTest(TestCase):
 
     @responses.activate
-    def test_create_user_creates_centrally(self):
+    def test_create(self):
         # ------------------------
-        # ##------Arrange------###
+        # -------Arrange----------
         # ------------------------
 
-        url = 'https://auth.kagiso.io/api/v1/users/.json',
+        url = 'https://auth.kagiso.io/api/v1/users/.json'
         email = 'test@email.com'
         profile = {
             'is_superadmin': True
@@ -41,21 +41,19 @@ class KagisoUserTest(TestCase):
         )
 
         # ------------------------
-        # ##------Act------###
+        # -------Act--------------
         # ------------------------
 
-        user = mommy.make(models.KagisoUser, email=email, profile=profile)
+        result = mommy.make(models.KagisoUser, email=email, profile=profile)
 
         # ------------------------
-        # ##------Assert------###
+        # -------Assert----------
         # ------------------------
-
         assert len(responses.calls) == 1
         assert responses.calls[0].request.url == url
 
-        assert user.id == data['id']
-        assert user.email == data['email']
-        assert user.confirmation_token == data['confirmation_token']
-        assert user.profile == data['profile']
-        assert user.demographics == data['demographics']
-        assert user.date_joined == data['created']
+        assert result.id == data['id']
+        assert result.email == data['email']
+        assert result.confirmation_token == data['confirmation_token']
+        assert result.profile == data['profile']
+        assert result.date_joined == parser.parse(data['created'])

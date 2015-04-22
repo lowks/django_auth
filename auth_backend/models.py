@@ -1,3 +1,4 @@
+from dateutil import parser
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from jsonfield import JSONField
@@ -16,7 +17,7 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=250, unique=True)
     profile = JSONField(null=True)
     is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(auto_now_add=True)
+    date_joined = models.DateTimeField()
 
     confirmation_token = None
     raw_password = None
@@ -62,17 +63,11 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
 
         status, data = auth_api_client.call('users', 'POST', payload)
 
-        if status == 409:
-            pass
-            # TODO: throw conflict error
-
-        if status != 201:
-            pass
-            # TODO: throw error
+        assert status == 201
 
         self.id = data['id']
         self.confirmation_token = data['confirmation_token']
-        self.date_joined = data['date_joined']
+        self.date_joined = parser.parse(data['created'])
 
     def _update_cas_user(self):
         pass
