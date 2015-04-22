@@ -188,3 +188,25 @@ class KagisoUserTest(TestCase):
         assert responses.calls[1].request.url == url
 
         assert user_deleted
+
+    def test_is_staff_defaults_to_false(self):
+        user = models.KagisoUser()
+        assert not user.is_staff
+
+    def test_is_staff_profile_false_returns_false(self):
+        user = models.KagisoUser(profile={'is_staff': False})
+        assert not user.is_staff
+
+    def test_is_staff_profile_true_returns_true(self):
+        user = models.KagisoUser(profile={'is_staff': True})
+        assert user.is_staff
+
+    def test_set_is_staff(self):
+        staff_member = models.KagisoUser()
+        non_staff_member = models.KagisoUser()
+
+        staff_member.is_staff = True
+        non_staff_member.is_staff = False
+
+        assert staff_member.profile['is_staff']
+        assert not non_staff_member.profile['is_staff']

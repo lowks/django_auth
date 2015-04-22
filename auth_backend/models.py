@@ -6,7 +6,6 @@ from django.dispatch import receiver
 from jsonfield import JSONField
 
 from . import auth_api_client
-from .managers import AuthManager
 
 # TODO: possible fields to add to CAS
 # first_name, last_name, is_staff, is_superadmin
@@ -25,12 +24,15 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     confirmation_token = None
     raw_password = None
 
-    objects = AuthManager()
-
     @property
     def is_staff(self):
-        # TODO: Implement
-        return False
+        return self.profile and self.profile.get('is_staff', False)
+
+    @is_staff.setter
+    def is_staff(self, value):
+        assert value in (True, False, )
+        self.profile = self.profile or {}
+        self.profile['is_staff'] = value
 
     @property
     def is_superadmin(self):
