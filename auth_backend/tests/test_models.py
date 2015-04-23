@@ -204,5 +204,72 @@ class KagisoUserTest(TestCase):
 
         assert user.get_short_name() == email
 
+    @responses.activate
     def test_confirm_email(self):
-        pass
+        # ------------------------
+        # -------Arrange----------
+        # ------------------------
+
+        # First we create a user
+        post_url = 'https://auth.kagiso.io/api/v1/users/.json'
+        post_data = {
+            'id': 1,
+            'email': 'test@email.com',
+            'confirmation_token': '49:1YkTO2:1VuxvGJre66xqQj6rkEXewmVs08',
+            'email_confirmed': None,
+            'profile': None,
+            'created': '2015-04-21T08:18:30.368602Z',
+            'modified': '2015-04-21T08:18:30.374410Z'
+        }
+
+        responses.add(
+            responses.POST,
+            post_url,
+            body=json.dumps(post_data),
+            status=201,
+        )
+        user = mommy.make(models.KagisoUser, id=None)
+
+        # Then we confirm the user's email address
+        confirm_email_url = 'https://auth.kagiso.io/api/v1/users/1/confirm_email/.json'  # noqa
+
+        responses.add(
+            responses.POST,
+            confirm_email_url,
+            status=204,
+        )
+
+        # Then we have to update the user regardless on KagisoUser#save()
+        put_url = 'https://auth.kagiso.io/api/v1/users/1/.json'
+        put_data = {
+            'id': 1,
+            'email': user.email,
+            'profile': user.profile,
+            'created': '2015-04-21T08:18:30.368602Z',
+            'modified': '2015-04-21T08:18:30.374410Z'
+        }
+
+        responses.add(
+            responses.PUT,
+            put_url,
+            body=json.dumps(put_data),
+            status=200,
+        )
+
+        # ------------------------
+        # -------Act----------
+        # ------------------------
+
+        user.confirm_email(post_data['confirmation_token'])
+
+        # ------------------------
+        # -------Assert----------
+        # ------------------------
+
+        assert len(responses.calls) == 3
+        assert responses.calls[1].request.url == confirm_email_url
+
+        result = models.KagisoUser.objects.get(id=user.id)
+
+        assert result.email_confirmed
+        assert not result.confirmation_token
