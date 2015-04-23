@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 from jsonfield import JSONField
 
 from . import auth_api_client
@@ -17,6 +18,7 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
 
     id = models.IntegerField(primary_key=True)
     email = models.EmailField(max_length=250, unique=True)
+    email_confirmed = models.DateTimeField(null=True)
     profile = JSONField(null=True)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField()
@@ -38,6 +40,17 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         self.set_unusable_password()
         self.raw_password = raw_password
         # TODO: Update password on CAS?
+
+    def confirm_email(self, confirmation_token):
+        payload = {'confirmation_token': confirmation_token}
+        endpoint = 'users/{id}/confirm_email'.format(id=self.id)
+        status, data = auth_api_client.call(endpoint, 'POST', payload)
+
+        assert status == 204
+
+        self.confirmation_token = None
+        self.email_confirmed = timezone.now()
+        self.save()
 
     def _create_user_in_db_and_cas(self):
         payload = {
