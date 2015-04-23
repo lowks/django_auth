@@ -85,6 +85,9 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         self.profile = data['profile']
         self.modified = parser.parse(data['modified'])
 
+    def __str__(self):
+        return self.email  # pragma: no cover
+
 
 @receiver(pre_delete, sender=KagisoUser)
 def delete_user_from_cas(sender, instance, *args, **kwargs):
