@@ -1,10 +1,9 @@
-import json
-
 from dateutil import parser
 from django.test import TestCase
 from model_mommy import mommy
 import responses
 
+from . import utils
 from .. import models
 
 
@@ -16,29 +15,12 @@ class KagisoUserTest(TestCase):
         # -------Arrange----------
         # ------------------------
 
-        url = 'https://auth.kagiso.io/api/v1/users/.json'
         email = 'test@email.com'
         profile = {
             'is_superadmin': True
         }
 
-        data = {
-            'id': 49,
-            'email': email,
-            'confirmation_token': '49:1YkTO2:1VuxvGJre66xqQj6rkEXewmVs08',
-            'email_confirmed': None,
-            'profile': profile,
-            'created': '2015-04-21T08:18:30.368602Z',
-            'modified': '2015-04-21T08:18:30.374410Z'
-        }
-
-        responses.add(
-            responses.POST,
-            url,
-            body=json.dumps(data),
-            status=201,
-        )
-
+        url, api_data = utils.mock_out_post_users(1, email, profile)
         # ------------------------
         # -------Act--------------
         # ------------------------
@@ -55,67 +37,36 @@ class KagisoUserTest(TestCase):
         # ------------------------
 
         # Confirmation tokens are saved in memory only.
-        assert user.confirmation_token == data['confirmation_token']
+        assert user.confirmation_token == api_data['confirmation_token']
 
         result = models.KagisoUser.objects.get(id=user.id)
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.url == url
 
-        assert result.id == data['id']
-        assert result.email == data['email']
+        assert result.id == api_data['id']
+        assert result.email == api_data['email']
         assert not result.email_confirmed
         assert result.confirmation_token is None
-        assert result.profile == data['profile']
-        assert result.date_joined == parser.parse(data['created'])
-        assert result.modified == parser.parse(data['modified'])
+        assert result.profile == api_data['profile']
+        assert result.date_joined == parser.parse(api_data['created'])
+        assert result.modified == parser.parse(api_data['modified'])
 
     @responses.activate
     def test_update(self):
         # ------------------------
         # -------Arrange----------
         # ------------------------
+        utils.mock_out_post_users(1, 'test@email.com')
 
-        url = 'https://auth.kagiso.io/api/v1/users/.json'
-
-        data = {
-            'id': 1,
-            'email': 'test@email.com',
-            'confirmation_token': '49:1YkTO2:1VuxvGJre66xqQj6rkEXewmVs08',
-            'email_confirmed': None,
-            'profile': None,
-            'created': '2015-04-21T08:18:30.368602Z',
-            'modified': '2015-04-21T08:18:30.374410Z'
-        }
-
-        responses.add(
-            responses.POST,
-            url,
-            body=json.dumps(data),
-            status=201,
-        )
         user = mommy.make(models.KagisoUser, id=None)
 
-        url = 'https://auth.kagiso.io/api/v1/users/1/.json'
         email = 'test@email.com'
         profile = {
             'is_superadmin': True
         }
 
-        data = {
-            'id': 1,
-            'email': email,
-            'profile': profile,
-            'created': '2015-04-21T08:18:30.368602Z',
-            'modified': '2015-04-21T08:18:30.374410Z'
-        }
-
-        responses.add(
-            responses.PUT,
-            url,
-            body=json.dumps(data),
-            status=200,
-        )
+        url, api_data = utils.mock_out_put_users(1, email, profile)
 
         # ------------------------
         # -------Act--------------
@@ -133,57 +84,19 @@ class KagisoUserTest(TestCase):
         assert len(responses.calls) == 2
         assert responses.calls[1].request.url == url
 
-        assert result.id == data['id']
-        assert result.email == data['email']
-        assert result.profile == data['profile']
-        assert result.modified == parser.parse(data['modified'])
+        assert result.id == api_data['id']
+        assert result.email == api_data['email']
+        assert result.profile == api_data['profile']
+        assert result.modified == parser.parse(api_data['modified'])
 
     @responses.activate
     def test_delete(self):
-        email = 'test@email.com'
-        # ------------------------
-        # -------Arrange----------
-        # ------------------------
-
-        user = models.KagisoUser(email=email)
-        url = 'https://auth.kagiso.io/api/v1/users/.json'
-
-        data = {
-            'id': 1,
-            'email': 'test@email.com',
-            'confirmation_token': '49:1YkTO2:1VuxvGJre66xqQj6rkEXewmVs08',
-            'email_confirmed': None,
-            'profile': None,
-            'created': '2015-04-21T08:18:30.368602Z',
-            'modified': '2015-04-21T08:18:30.374410Z'
-        }
-
-        responses.add(
-            responses.POST,
-            url,
-            body=json.dumps(data),
-            status=201,
-        )
+        utils.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
-
-        url = 'https://auth.kagiso.io/api/v1/users/1/.json'
-
-        responses.add(
-            responses.DELETE,
-            url,
-            body=json.dumps(data),
-            status=204,
-        )
-
-        # ------------------------
-        # -------Act--------------
-        # ------------------------
+        url = utils.mock_out_delete_users(user.id)
 
         user.delete()
 
-        # ------------------------
-        # -------Assert----------
-        # ------------------------
         user_deleted = not models.KagisoUser.objects.filter(
             id=user.id).exists()
 
@@ -206,68 +119,16 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_confirm_email(self):
-        # ------------------------
-        # -------Arrange----------
-        # ------------------------
-
-        # First we create a user
-        post_url = 'https://auth.kagiso.io/api/v1/users/.json'
-        post_data = {
-            'id': 1,
-            'email': 'test@email.com',
-            'confirmation_token': '49:1YkTO2:1VuxvGJre66xqQj6rkEXewmVs08',
-            'email_confirmed': None,
-            'profile': None,
-            'created': '2015-04-21T08:18:30.368602Z',
-            'modified': '2015-04-21T08:18:30.374410Z'
-        }
-
-        responses.add(
-            responses.POST,
-            post_url,
-            body=json.dumps(post_data),
-            status=201,
-        )
+        _, post_data = utils.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
-
-        # Then we confirm the user's email address
-        confirm_email_url = 'https://auth.kagiso.io/api/v1/users/1/confirm_email/.json'  # noqa
-
-        responses.add(
-            responses.POST,
-            confirm_email_url,
-            status=204,
-        )
-
-        # Then we have to update the user regardless on KagisoUser#save()
-        put_url = 'https://auth.kagiso.io/api/v1/users/1/.json'
-        put_data = {
-            'id': 1,
-            'email': user.email,
-            'profile': user.profile,
-            'created': '2015-04-21T08:18:30.368602Z',
-            'modified': '2015-04-21T08:18:30.374410Z'
-        }
-
-        responses.add(
-            responses.PUT,
-            put_url,
-            body=json.dumps(put_data),
-            status=200,
-        )
-
-        # ------------------------
-        # -------Act----------
-        # ------------------------
+        utils.mock_out_put_users(user.id, user.email, user.profile)
+        url = utils.mock_out_confirm_email(user.id)
 
         user.confirm_email(post_data['confirmation_token'])
 
-        # ------------------------
-        # -------Assert----------
-        # ------------------------
-
         assert len(responses.calls) == 3
-        assert responses.calls[1].request.url == confirm_email_url
+        # Create user, confirm user, update user...
+        assert responses.calls[1].request.url == url
 
         result = models.KagisoUser.objects.get(id=user.id)
 
