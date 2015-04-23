@@ -1,12 +1,10 @@
 from django.contrib.auth.models import BaseUserManager
 
-from .models import KagisoUser
-
 
 class AuthManager(BaseUserManager):
 
     def create_user(self, email, password=None, **other_fields):
-        user = KagisoUser(email=email, **other_fields)
+        user = self.model(email=self.normalize_email(email), **other_fields)
         user.set_password(password)
         user.save()
         return user

@@ -3,7 +3,7 @@ from django.test import TestCase
 import responses
 
 from . import utils
-from ..managers import AuthManager
+from ..models import KagisoUser
 
 
 class KagisoUserTest(TestCase):
@@ -17,8 +17,8 @@ class KagisoUserTest(TestCase):
         }
         url, api_data = utils.mock_out_post_users(1, email, profile)
 
-        auth_manager = AuthManager()
-        result = auth_manager.create_user(email, password, profile=profile)
+        result = KagisoUser.objects.create_user(
+            email, password, profile=profile)
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.url == url
@@ -37,8 +37,7 @@ class KagisoUserTest(TestCase):
         password = 'random'
         url, api_data = utils.mock_out_post_users(1, email)
 
-        auth_manager = AuthManager()
-        result = auth_manager.create_superuser(email, password)
+        result = KagisoUser.objects.create_superuser(email, password)
 
         assert len(responses.calls) == 1
         assert responses.calls[0].request.url == url
