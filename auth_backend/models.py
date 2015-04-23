@@ -17,6 +17,7 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
 
     id = models.IntegerField(primary_key=True)
     email = models.EmailField(max_length=250, unique=True)
+    email_confirmed = models.DateTimeField(null=True)
     profile = JSONField(null=True)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField()

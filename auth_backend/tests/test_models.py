@@ -64,6 +64,7 @@ class KagisoUserTest(TestCase):
 
         assert result.id == data['id']
         assert result.email == data['email']
+        assert not result.email_confirmed
         assert result.confirmation_token is None
         assert result.profile == data['profile']
         assert result.date_joined == parser.parse(data['created'])
@@ -202,3 +203,6 @@ class KagisoUserTest(TestCase):
         user = models.KagisoUser(email=email)
 
         assert user.get_short_name() == email
+
+    def test_confirm_email(self):
+        pass
