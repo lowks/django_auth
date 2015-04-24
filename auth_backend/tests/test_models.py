@@ -134,3 +134,17 @@ class KagisoUserTest(TestCase):
 
         assert result.email_confirmed
         assert not result.confirmation_token
+
+    @responses.activate
+    def test_record_sign_out(self):
+        id = 1
+        _, post_data = utils.mock_out_post_users(id, 'test@email.com')
+        user = mommy.make(models.KagisoUser, id=None)
+        url = utils.mock_out_delete_sessions(id)
+
+        did_sign_out = user.record_sign_out()
+
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
+
+        assert did_sign_out

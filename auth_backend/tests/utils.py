@@ -79,3 +79,15 @@ def mock_out_post_sessions(email, password, status):
     )
 
     return url
+
+
+def mock_out_delete_sessions(id):
+    url = 'https://auth.kagiso.io/api/v1/sessions/{id}/.json'.format(id=id)
+
+    responses.add(
+        responses.DELETE,
+        url,
+        status=200,
+    )
+
+    return url
