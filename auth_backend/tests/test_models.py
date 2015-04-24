@@ -117,6 +117,14 @@ class KagisoUserTest(TestCase):
 
         assert user.get_short_name() == email
 
+    def test_set_password(self):
+        user = models.KagisoUser()
+        password = 'my_password'
+
+        user.set_password(password)
+
+        assert user.raw_password == password
+
     @responses.activate
     def test_confirm_email(self):
         _, post_data = utils.mock_out_post_users(1, 'test@email.com')

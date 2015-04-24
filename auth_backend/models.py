@@ -38,8 +38,8 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     def set_password(self, raw_password):
         # We don't want to save passwords locally
         self.set_unusable_password()
+        # Save them in memory only
         self.raw_password = raw_password
-        # TODO: Update password on CAS?
 
     def confirm_email(self, confirmation_token):
         payload = {'confirmation_token': confirmation_token}
