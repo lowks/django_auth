@@ -70,6 +70,12 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
 
         return status == 200
 
+    def record_sign_out(self):
+        endpoint = 'sessions/{id}'.format(id=self.id)
+        status, data = auth_api_client.call(endpoint, 'DELETE')
+
+        return status == 200
+
     def _create_user_in_db_and_cas(self):
         payload = {
             'email': self.email,
