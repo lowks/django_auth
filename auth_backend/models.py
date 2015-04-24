@@ -38,8 +38,8 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     def set_password(self, raw_password):
         # We don't want to save passwords locally
         self.set_unusable_password()
+        # Save them in memory only
         self.raw_password = raw_password
-        # TODO: Update password on CAS?
 
     def confirm_email(self, confirmation_token):
         payload = {'confirmation_token': confirmation_token}
@@ -51,6 +51,24 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         self.confirmation_token = None
         self.email_confirmed = timezone.now()
         self.save()
+
+    def generate_reset_password_token(self):
+        endpoint = 'users/{id}/reset_password'.format(id=self.id)
+        status, data = auth_api_client.call(endpoint, 'GET')
+
+        assert status == 200
+
+        return data['reset_password_token']
+
+    def reset_password(self, password, reset_password_token):
+        payload = {
+            'reset_password_token': reset_password_token,
+            'password': password,
+        }
+        endpoint = 'users/{id}/reset_password'.format(id=self.id)
+        status, _ = auth_api_client.call(endpoint, 'POST', payload)
+
+        return status == 200
 
     def _create_user_in_db_and_cas(self):
         payload = {

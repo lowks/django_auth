@@ -57,13 +57,41 @@ def mock_out_delete_users(id):
     return url
 
 
-def mock_out_confirm_email(id):
+def mock_out_post_confirm_email(id):
     url = 'https://auth.kagiso.io/api/v1/users/{id}/confirm_email/.json'.format(id=id)  # noqa
 
     responses.add(
         responses.POST,
         url,
         status=204,
+    )
+
+    return url
+
+
+def mock_out_get_reset_password(id):
+    url = 'https://auth.kagiso.io/api/v1/users/{id}/reset_password/.json'.format(id=id)  # noqa
+    data = {
+        'reset_password_token': 'random_token',
+    }
+
+    responses.add(
+        responses.GET,
+        url,
+        body=json.dumps(data),
+        status=200,
+    )
+
+    return url, data
+
+
+def mock_out_post_reset_password(id):
+    url = 'https://auth.kagiso.io/api/v1/users/{id}/reset_password/.json'.format(id=id)  # noqa
+
+    responses.add(
+        responses.POST,
+        url,
+        status=200,
     )
 
     return url

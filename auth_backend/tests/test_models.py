@@ -117,12 +117,20 @@ class KagisoUserTest(TestCase):
 
         assert user.get_short_name() == email
 
+    def test_set_password(self):
+        user = models.KagisoUser()
+        password = 'my_password'
+
+        user.set_password(password)
+
+        assert user.raw_password == password
+
     @responses.activate
     def test_confirm_email(self):
         _, post_data = utils.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
         utils.mock_out_put_users(user.id, user.email, user.profile)
-        url = utils.mock_out_confirm_email(user.id)
+        url = utils.mock_out_post_confirm_email(user.id)
 
         user.confirm_email(post_data['confirmation_token'])
 
@@ -134,3 +142,29 @@ class KagisoUserTest(TestCase):
 
         assert result.email_confirmed
         assert not result.confirmation_token
+
+    @responses.activate
+    def test_generate_reset_password_token(self):
+        _, post_data = utils.mock_out_post_users(1, 'test@email.com')
+        user = mommy.make(models.KagisoUser, id=None)
+        url, data = utils.mock_out_get_reset_password(user.id)
+
+        reset_password_token = user.generate_reset_password_token()
+
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
+
+        assert reset_password_token == data['reset_password_token']  # noqa
+
+    @responses.activate
+    def test_reset_password(self):
+        _, post_data = utils.mock_out_post_users(1, 'test@email.com')
+        user = mommy.make(models.KagisoUser, id=None)
+        url = utils.mock_out_post_reset_password(user.id)
+
+        did_password_reset = user.reset_password('new_password', 'test_token')
+
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
+
+        assert did_password_reset
