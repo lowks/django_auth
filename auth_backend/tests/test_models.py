@@ -122,7 +122,7 @@ class KagisoUserTest(TestCase):
         _, post_data = utils.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
         utils.mock_out_put_users(user.id, user.email, user.profile)
-        url = utils.mock_out_confirm_email(user.id)
+        url = utils.mock_out_post_confirm_email(user.id)
 
         user.confirm_email(post_data['confirmation_token'])
 

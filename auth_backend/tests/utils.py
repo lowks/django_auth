@@ -57,7 +57,7 @@ def mock_out_delete_users(id):
     return url
 
 
-def mock_out_confirm_email(id):
+def mock_out_post_confirm_email(id):
     url = 'https://auth.kagiso.io/api/v1/users/{id}/confirm_email/.json'.format(id=id)  # noqa
 
     responses.add(
