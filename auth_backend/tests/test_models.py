@@ -134,3 +134,16 @@ class KagisoUserTest(TestCase):
 
         assert result.email_confirmed
         assert not result.confirmation_token
+
+    @responses.activate
+    def test_generate_reset_password_token(self):
+        _, post_data = utils.mock_out_post_users(1, 'test@email.com')
+        user = mommy.make(models.KagisoUser, id=None)
+        url, data = utils.mock_out_get_reset_password(user.id)
+
+        reset_password_token = user.generate_reset_password_token()
+
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
+
+        assert reset_password_token == data['reset_password_token']  # noqa

@@ -52,6 +52,14 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         self.email_confirmed = timezone.now()
         self.save()
 
+    def generate_reset_password_token(self):
+        endpoint = 'users/{id}/reset_password'.format(id=self.id)
+        status, data = auth_api_client.call(endpoint, 'GET')
+
+        assert status == 200
+
+        return data['reset_password_token']
+
     def _create_user_in_db_and_cas(self):
         payload = {
             'email': self.email,
