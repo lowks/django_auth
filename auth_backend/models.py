@@ -60,6 +60,16 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
 
         return data['reset_password_token']
 
+    def reset_password(self, password, reset_password_token):
+        payload = {
+            'reset_password_token': reset_password_token,
+            'password': password,
+        }
+        endpoint = 'users/{id}/reset_password'.format(id=self.id)
+        status, _ = auth_api_client.call(endpoint, 'POST', payload)
+
+        return status == 200
+
     def _create_user_in_db_and_cas(self):
         payload = {
             'email': self.email,
