@@ -23,7 +23,7 @@ def call(endpoint, method='GET', payload=None):
 
     request = fn(url, headers=AUTH_HEADERS, data=json.dumps(payload))
 
-    _raise_if_4xx_or_5xx(request)
+    _raise_if_4xx_or_5xx_but_not_404(request)
 
     json_data = {}
     try:
@@ -35,5 +35,6 @@ def call(endpoint, method='GET', payload=None):
     return request.status_code, json_data
 
 
-def _raise_if_4xx_or_5xx(request):
-    request.raise_for_status()
+def _raise_if_4xx_or_5xx_but_not_404(request):
+    if not request.status_code == 404:
+        request.raise_for_status()

@@ -67,3 +67,15 @@ def mock_out_confirm_email(id):
     )
 
     return url
+
+
+def mock_out_post_sessions(email, password, status):
+    url = 'https://auth.kagiso.io/api/v1/sessions/.json'
+
+    responses.add(
+        responses.POST,
+        url,
+        status=status,
+    )
+
+    return url
