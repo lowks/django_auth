@@ -1,6 +1,7 @@
 [run]
 source = .
 omit=
+    setup.py
     manage.py
     venv/*
     django_auth/*
