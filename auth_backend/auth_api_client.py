@@ -2,11 +2,13 @@ import json
 
 import requests
 
+from . import settings
+
 AUTH_HEADERS = {
-    'AUTHORIZATION': 'Token: xyz',
-    'SOURCE_ID': 22
+    'AUTHORIZATION': 'Token: {0}'.format(settings.CAS_TOKEN),
+    'SOURCE_ID': settings.CAS_SOURCE_ID,
 }
-BASE_URL = 'https://auth.kagiso.io'
+BASE_URL = settings.CAS_BASE_URL
 
 
 def call(endpoint, method='GET', payload=None):
@@ -18,7 +20,7 @@ def call(endpoint, method='GET', payload=None):
     elif method == 'DELETE':
         fn = requests.delete
 
-    url = '{base_url}/api/v1/{endpoint}/.json'.format(
+    url = '{base_url}/{endpoint}/.json'.format(
         base_url=BASE_URL, endpoint=endpoint)
 
     request = fn(url, headers=AUTH_HEADERS, data=json.dumps(payload))
