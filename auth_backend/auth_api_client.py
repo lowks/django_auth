@@ -5,8 +5,8 @@ import requests
 from . import settings
 
 AUTH_HEADERS = {
-    'AUTHORIZATION': 'Token: {0}'.format(settings.CAS_TOKEN),
-    'SOURCE_ID': settings.CAS_SOURCE_ID,
+    'AUTHORIZATION': 'Token {0}'.format(settings.CAS_TOKEN),
+    'SOURCE-ID': settings.CAS_SOURCE_ID,
 }
 BASE_URL = settings.CAS_BASE_URL
 
