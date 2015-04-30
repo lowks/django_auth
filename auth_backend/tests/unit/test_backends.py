@@ -1,7 +1,7 @@
 from django.test import TestCase
 import responses
 
-from . import mocks
+from . import mocks, utils
 from ...backends import KagisoBackend
 from ...models import KagisoUser
 
@@ -10,7 +10,7 @@ class KagisoBackendTest(TestCase):
 
     @responses.activate
     def test_authenticate_valid_credentials_returns_user(self):
-        email = 'test@email.com'
+        email = utils.random_email()
         password = 'random'
         profile = {
             'first_name': 'Fred'
@@ -32,7 +32,7 @@ class KagisoBackendTest(TestCase):
 
     @responses.activate
     def test_authenticate_user_does_not_exist_locally_returns_none(self):
-        email = 'test@email.com'
+        email = utils.random_email()
         password = 'random'
 
         backend = KagisoBackend()
@@ -45,7 +45,7 @@ class KagisoBackendTest(TestCase):
 
     @responses.activate
     def test_authenticate_invalid_credentials_returns_none(self):
-        email = 'test@email.com'
+        email = utils.random_email()
         password = 'incorrect'
         profile = {
             'first_name': 'Fred'

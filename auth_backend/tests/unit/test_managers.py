@@ -2,7 +2,7 @@ from dateutil import parser
 from django.test import TestCase
 import responses
 
-from . import mocks
+from . import mocks, utils
 from ...models import KagisoUser
 
 
@@ -10,7 +10,7 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_create_user(self):
-        email = 'test@email.com'
+        email = utils.random_email()
         password = 'random'
         profile = {
             'first_name': 'Fred'
@@ -34,7 +34,7 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_create_super_user(self):
-        email = 'test@email.com'
+        email = utils.random_email()
         password = 'random'
         url, api_data = mocks.mock_out_post_users(1, email)
 
