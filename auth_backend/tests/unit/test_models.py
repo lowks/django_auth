@@ -4,7 +4,7 @@ from model_mommy import mommy
 import responses
 
 from . import utils
-from .. import models
+from ... import models
 
 
 class KagisoUserTest(TestCase):

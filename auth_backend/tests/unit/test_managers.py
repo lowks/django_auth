@@ -3,7 +3,7 @@ from django.test import TestCase
 import responses
 
 from . import utils
-from ..models import KagisoUser
+from ...models import KagisoUser
 
 
 class KagisoUserTest(TestCase):

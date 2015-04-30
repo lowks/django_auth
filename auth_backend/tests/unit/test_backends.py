@@ -2,8 +2,8 @@ from django.test import TestCase
 import responses
 
 from . import utils
-from ..backends import KagisoBackend
-from ..models import KagisoUser
+from ...backends import KagisoBackend
+from ...models import KagisoUser
 
 
 class KagisoBackendTest(TestCase):
