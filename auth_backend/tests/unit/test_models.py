@@ -3,7 +3,7 @@ from django.test import TestCase
 from model_mommy import mommy
 import responses
 
-from . import utils
+from . import mocks
 from ... import models
 
 
@@ -20,7 +20,7 @@ class KagisoUserTest(TestCase):
             'is_superadmin': True
         }
 
-        url, api_data = utils.mock_out_post_users(1, email, profile)
+        url, api_data = mocks.mock_out_post_users(1, email, profile)
         # ------------------------
         # -------Act--------------
         # ------------------------
@@ -57,7 +57,7 @@ class KagisoUserTest(TestCase):
         # ------------------------
         # -------Arrange----------
         # ------------------------
-        utils.mock_out_post_users(1, 'test@email.com')
+        mocks.mock_out_post_users(1, 'test@email.com')
 
         user = mommy.make(models.KagisoUser, id=None)
 
@@ -66,7 +66,7 @@ class KagisoUserTest(TestCase):
             'is_superadmin': True
         }
 
-        url, api_data = utils.mock_out_put_users(1, email, profile)
+        url, api_data = mocks.mock_out_put_users(1, email, profile)
 
         # ------------------------
         # -------Act--------------
@@ -91,9 +91,9 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_delete(self):
-        utils.mock_out_post_users(1, 'test@email.com')
+        mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
-        url = utils.mock_out_delete_users(user.id)
+        url = mocks.mock_out_delete_users(user.id)
 
         user.delete()
 
@@ -127,10 +127,10 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_confirm_email(self):
-        _, post_data = utils.mock_out_post_users(1, 'test@email.com')
+        _, post_data = mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
-        utils.mock_out_put_users(user.id, user.email, user.profile)
-        url = utils.mock_out_post_confirm_email(user.id)
+        mocks.mock_out_put_users(user.id, user.email, user.profile)
+        url = mocks.mock_out_post_confirm_email(user.id)
 
         user.confirm_email(post_data['confirmation_token'])
 
@@ -146,9 +146,9 @@ class KagisoUserTest(TestCase):
     @responses.activate
     def test_record_sign_out(self):
         id = 1
-        _, post_data = utils.mock_out_post_users(id, 'test@email.com')
+        _, post_data = mocks.mock_out_post_users(id, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
-        url = utils.mock_out_delete_sessions(id)
+        url = mocks.mock_out_delete_sessions(id)
 
         did_sign_out = user.record_sign_out()
 
@@ -159,9 +159,9 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_generate_reset_password_token(self):
-        _, post_data = utils.mock_out_post_users(1, 'test@email.com')
+        _, post_data = mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
-        url, data = utils.mock_out_get_reset_password(user.id)
+        url, data = mocks.mock_out_get_reset_password(user.id)
 
         reset_password_token = user.generate_reset_password_token()
 
@@ -172,9 +172,9 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_reset_password(self):
-        _, post_data = utils.mock_out_post_users(1, 'test@email.com')
+        _, post_data = mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
-        url = utils.mock_out_post_reset_password(user.id)
+        url = mocks.mock_out_post_reset_password(user.id)
 
         did_password_reset = user.reset_password('new_password', 'test_token')
 
