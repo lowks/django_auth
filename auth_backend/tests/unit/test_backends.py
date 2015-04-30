@@ -23,8 +23,9 @@ class KagisoBackendTest(TestCase):
         backend = KagisoBackend()
         result = backend.authenticate(email, password)
 
-        assert len(responses.calls) == 2
-        assert responses.calls[1].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 2
+            assert responses.calls[1].request.url == url
 
         assert isinstance(result, KagisoUser)
         assert result.id == user.id
@@ -37,7 +38,9 @@ class KagisoBackendTest(TestCase):
         backend = KagisoBackend()
         result = backend.authenticate(email, password)
 
-        assert len(responses.calls) == 0
+        if not responses.deactivated:
+            assert len(responses.calls) == 0
+
         assert not result
 
     @responses.activate
@@ -55,7 +58,8 @@ class KagisoBackendTest(TestCase):
         backend = KagisoBackend()
         result = backend.authenticate(email, password)
 
-        assert len(responses.calls) == 2
-        assert responses.calls[1].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 2
+            assert responses.calls[1].request.url == url
 
         assert not result

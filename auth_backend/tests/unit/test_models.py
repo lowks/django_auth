@@ -41,8 +41,9 @@ class KagisoUserTest(TestCase):
 
         result = models.KagisoUser.objects.get(id=user.id)
 
-        assert len(responses.calls) == 1
-        assert responses.calls[0].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 1
+            assert responses.calls[0].request.url == url
 
         assert result.id == api_data['id']
         assert result.email == api_data['email']
@@ -81,8 +82,9 @@ class KagisoUserTest(TestCase):
         # ------------------------
         result = models.KagisoUser.objects.get(id=user.id)
 
-        assert len(responses.calls) == 2
-        assert responses.calls[1].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 2
+            assert responses.calls[1].request.url == url
 
         assert result.id == api_data['id']
         assert result.email == api_data['email']
@@ -100,8 +102,9 @@ class KagisoUserTest(TestCase):
         user_deleted = not models.KagisoUser.objects.filter(
             id=user.id).exists()
 
-        assert len(responses.calls) == 2
-        assert responses.calls[1].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 2
+            assert responses.calls[1].request.url == url
 
         assert user_deleted
 
@@ -134,9 +137,10 @@ class KagisoUserTest(TestCase):
 
         user.confirm_email(post_data['confirmation_token'])
 
-        assert len(responses.calls) == 3
-        # Create user, confirm user, update user...
-        assert responses.calls[1].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 3
+            # Create user, confirm user, update user...
+            assert responses.calls[1].request.url == url
 
         result = models.KagisoUser.objects.get(id=user.id)
 
@@ -152,8 +156,9 @@ class KagisoUserTest(TestCase):
 
         did_sign_out = user.record_sign_out()
 
-        assert len(responses.calls) == 2
-        assert responses.calls[1].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 2
+            assert responses.calls[1].request.url == url
 
         assert did_sign_out
 
@@ -165,8 +170,9 @@ class KagisoUserTest(TestCase):
 
         reset_password_token = user.generate_reset_password_token()
 
-        assert len(responses.calls) == 2
-        assert responses.calls[1].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 2
+            assert responses.calls[1].request.url == url
 
         assert reset_password_token == data['reset_password_token']  # noqa
 
@@ -178,7 +184,8 @@ class KagisoUserTest(TestCase):
 
         did_password_reset = user.reset_password('new_password', 'test_token')
 
-        assert len(responses.calls) == 2
-        assert responses.calls[1].request.url == url
+        if not responses.deactivated:
+            assert len(responses.calls) == 2
+            assert responses.calls[1].request.url == url
 
         assert did_password_reset
