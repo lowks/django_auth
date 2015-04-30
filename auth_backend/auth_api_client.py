@@ -7,7 +7,6 @@ from . import settings
 AUTH_HEADERS = {
     'AUTHORIZATION': 'Token {0}'.format(settings.CAS_TOKEN),
     'SOURCE-ID': settings.CAS_SOURCE_ID,
-    'CONTENT-TYPE': 'application/json',
 }
 BASE_URL = settings.CAS_BASE_URL
 
@@ -24,10 +23,14 @@ def call(endpoint, method='GET', payload=None):
     url = '{base_url}/{endpoint}/.json'.format(
         base_url=BASE_URL, endpoint=endpoint)
 
-    request = fn(url, headers=AUTH_HEADERS, data=json.dumps(payload))
-    print('emthod', method)
+    if payload:
+        request = fn(url, headers=AUTH_HEADERS, json=payload)
+    else:
+        request = fn(url, headers=AUTH_HEADERS)
+
+    print('method', method)
     print('url', url)
-    print('haders', AUTH_HEADERS)
+    print('headers', AUTH_HEADERS)
     print('data', payload)
     print('json', json.dumps(payload))
 
@@ -45,4 +48,5 @@ def call(endpoint, method='GET', payload=None):
 
 def _raise_if_4xx_or_5xx_but_not_404(request):
     if not request.status_code == 404:
+        print(request.json())
         request.raise_for_status()
