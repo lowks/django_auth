@@ -3,7 +3,7 @@ from django.test import TestCase
 from model_mommy import mommy
 import responses
 
-from . import mocks, utils
+from . import mocks
 from ... import models
 
 
@@ -15,7 +15,7 @@ class KagisoUserTest(TestCase):
         # -------Arrange----------
         # ------------------------
 
-        email = utils.random_email()
+        email = 'test@email.com'
         profile = {
             'is_superadmin': True
         }
@@ -41,9 +41,8 @@ class KagisoUserTest(TestCase):
 
         result = models.KagisoUser.objects.get(id=user.id)
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 1
-            assert responses.calls[0].request.url == url
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == url
 
         assert result.id == api_data['id']
         assert result.email == api_data['email']
@@ -58,11 +57,11 @@ class KagisoUserTest(TestCase):
         # ------------------------
         # -------Arrange----------
         # ------------------------
-        mocks.mock_out_post_users(1, utils.random_email())
+        mocks.mock_out_post_users(1, 'test@email.com')
 
         user = mommy.make(models.KagisoUser, id=None)
 
-        email = utils.random_email()
+        email = 'test@email.com'
         profile = {
             'is_superadmin': True
         }
@@ -82,9 +81,8 @@ class KagisoUserTest(TestCase):
         # ------------------------
         result = models.KagisoUser.objects.get(id=user.id)
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 2
-            assert responses.calls[1].request.url == url
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
 
         assert result.id == api_data['id']
         assert result.email == api_data['email']
@@ -93,7 +91,7 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_delete(self):
-        mocks.mock_out_post_users(1, utils.random_email())
+        mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
         url = mocks.mock_out_delete_users(user.id)
 
@@ -102,20 +100,19 @@ class KagisoUserTest(TestCase):
         user_deleted = not models.KagisoUser.objects.filter(
             id=user.id).exists()
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 2
-            assert responses.calls[1].request.url == url
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
 
         assert user_deleted
 
     def test_get_full_name_returns_email(self):
-        email = utils.random_email()
+        email = 'test@email.com'
         user = models.KagisoUser(email=email)
 
         assert user.get_full_name() == email
 
     def test_get_short_name_returns_email(self):
-        email = utils.random_email()
+        email = 'test@email.com'
         user = models.KagisoUser(email=email)
 
         assert user.get_short_name() == email
@@ -130,17 +127,16 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_confirm_email(self):
-        _, post_data = mocks.mock_out_post_users(1, utils.random_email())
+        _, post_data = mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
         mocks.mock_out_put_users(user.id, user.email, user.profile)
         url = mocks.mock_out_post_confirm_email(user.id)
 
         user.confirm_email(post_data['confirmation_token'])
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 3
-            # Create user, confirm user, update user...
-            assert responses.calls[1].request.url == url
+        assert len(responses.calls) == 3
+        # Create user, confirm user, update user...
+        assert responses.calls[1].request.url == url
 
         result = models.KagisoUser.objects.get(id=user.id)
 
@@ -150,42 +146,39 @@ class KagisoUserTest(TestCase):
     @responses.activate
     def test_record_sign_out(self):
         id = 1
-        _, post_data = mocks.mock_out_post_users(id, utils.random_email())
+        _, post_data = mocks.mock_out_post_users(id, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
         url = mocks.mock_out_delete_sessions(id)
 
         did_sign_out = user.record_sign_out()
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 2
-            assert responses.calls[1].request.url == url
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
 
         assert did_sign_out
 
     @responses.activate
     def test_generate_reset_password_token(self):
-        _, post_data = mocks.mock_out_post_users(1, utils.random_email())
+        _, post_data = mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
         url, data = mocks.mock_out_get_reset_password(user.id)
 
         reset_password_token = user.generate_reset_password_token()
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 2
-            assert responses.calls[1].request.url == url
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
 
         assert reset_password_token == data['reset_password_token']  # noqa
 
     @responses.activate
     def test_reset_password(self):
-        _, post_data = mocks.mock_out_post_users(1, utils.random_email())
+        _, post_data = mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
         url = mocks.mock_out_post_reset_password(user.id)
 
         did_password_reset = user.reset_password('new_password', 'test_token')
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 2
-            assert responses.calls[1].request.url == url
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
 
         assert did_password_reset

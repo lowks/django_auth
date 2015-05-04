@@ -2,7 +2,7 @@ from dateutil import parser
 from django.test import TestCase
 import responses
 
-from . import mocks, utils
+from . import mocks
 from ...models import KagisoUser
 
 
@@ -10,7 +10,7 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_create_user(self):
-        email = utils.random_email()
+        email = 'test@email.com'
         password = 'random'
         profile = {
             'first_name': 'Fred'
@@ -20,9 +20,8 @@ class KagisoUserTest(TestCase):
         result = KagisoUser.objects.create_user(
             email, password, profile=profile)
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 1
-            assert responses.calls[0].request.url == url
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == url
 
         assert result.id == api_data['id']
         assert result.email == email
@@ -34,15 +33,14 @@ class KagisoUserTest(TestCase):
 
     @responses.activate
     def test_create_super_user(self):
-        email = utils.random_email()
+        email = 'test@email.com'
         password = 'random'
         url, api_data = mocks.mock_out_post_users(1, email)
 
         result = KagisoUser.objects.create_superuser(email, password)
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 1
-            assert responses.calls[0].request.url == url
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == url
 
         assert result.email == email
         assert result.is_superuser

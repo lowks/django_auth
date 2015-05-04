@@ -24,10 +24,6 @@ def call(endpoint, method='GET', payload=None):
         base_url=BASE_URL, endpoint=endpoint)
 
     request = fn(url, headers=AUTH_HEADERS, data=payload)
-    # if payload:
-    # request = fn(url, headers=AUTH_HEADERS, json=payload)
-    # else:
-    # request = fn(url, headers=AUTH_HEADERS)
 
     print('method', method)
     print('url', url)

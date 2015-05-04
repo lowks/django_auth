@@ -1,7 +1,7 @@
 from django.test import TestCase
 import responses
 
-from . import mocks, utils
+from . import mocks
 from ...backends import KagisoBackend
 from ...models import KagisoUser
 
@@ -10,7 +10,7 @@ class KagisoBackendTest(TestCase):
 
     @responses.activate
     def test_authenticate_valid_credentials_returns_user(self):
-        email = utils.random_email()
+        email = 'test@email.com'
         password = 'random'
         profile = {
             'first_name': 'Fred'
@@ -23,29 +23,27 @@ class KagisoBackendTest(TestCase):
         backend = KagisoBackend()
         result = backend.authenticate(email, password)
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 2
-            assert responses.calls[1].request.url == url
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
 
         assert isinstance(result, KagisoUser)
         assert result.id == user.id
 
     @responses.activate
     def test_authenticate_user_does_not_exist_locally_returns_none(self):
-        email = utils.random_email()
+        email = 'test@email.com'
         password = 'random'
 
         backend = KagisoBackend()
         result = backend.authenticate(email, password)
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 0
+        assert len(responses.calls) == 0
 
         assert not result
 
     @responses.activate
     def test_authenticate_invalid_credentials_returns_none(self):
-        email = utils.random_email()
+        email = 'test@email.com'
         password = 'incorrect'
         profile = {
             'first_name': 'Fred'
@@ -58,8 +56,7 @@ class KagisoBackendTest(TestCase):
         backend = KagisoBackend()
         result = backend.authenticate(email, password)
 
-        if not responses.deactivated:
-            assert len(responses.calls) == 2
-            assert responses.calls[1].request.url == url
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.url == url
 
         assert not result
