@@ -77,19 +77,11 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         return status == 200
 
     def _create_user_in_db_and_cas(self):
-        # TODO: Look into calling methods when using mommy.make
-        # Support model mommy: need to be able to set password at time of
-        # creation ...
-        # if self.password:
-            # self.set_password(self.password)
-
         payload = {
             'email': self.email,
             'password': self.raw_password,
             'profile': self.profile,
         }
-
-        print(payload)
 
         status, data = auth_api_client.call('users', 'POST', payload)
 
