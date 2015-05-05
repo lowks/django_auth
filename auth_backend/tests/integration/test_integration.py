@@ -64,7 +64,7 @@ class KagisoUserTest(TestCase):
         updated_result.delete()
 
     def test_reset_password(self):
-        # ----- Reset the password -----
+        # ----- Create the user -----
         email = utils.random_email()
 
         user = mommy.prepare(
@@ -75,6 +75,7 @@ class KagisoUserTest(TestCase):
         user.set_password('password')
         user.save()
 
+        # ----- Reset the password -----
         new_password = 'new_password'
         token = user.generate_reset_password_token()
         did_password_reset = user.reset_password(new_password, token)
