@@ -5,7 +5,7 @@ import pytest
 import requests
 import responses
 
-from .. import auth_api_client
+from ... import auth_api_client
 
 
 class TestApiClient(TestCase):

@@ -1,9 +1,9 @@
 from django.test import TestCase
 import responses
 
-from . import utils
-from ..backends import KagisoBackend
-from ..models import KagisoUser
+from . import mocks
+from ...backends import KagisoBackend
+from ...models import KagisoUser
 
 
 class KagisoBackendTest(TestCase):
@@ -15,10 +15,10 @@ class KagisoBackendTest(TestCase):
         profile = {
             'first_name': 'Fred'
         }
-        url, api_data = utils.mock_out_post_users(1, email, profile)
+        url, api_data = mocks.mock_out_post_users(1, email, profile)
         user = KagisoUser.objects.create_user(
             email, password, profile=profile)
-        url = utils.mock_out_post_sessions(email, password, 200)
+        url = mocks.mock_out_post_sessions(email, password, 200)
 
         backend = KagisoBackend()
         result = backend.authenticate(email, password)
@@ -38,6 +38,7 @@ class KagisoBackendTest(TestCase):
         result = backend.authenticate(email, password)
 
         assert len(responses.calls) == 0
+
         assert not result
 
     @responses.activate
@@ -47,10 +48,10 @@ class KagisoBackendTest(TestCase):
         profile = {
             'first_name': 'Fred'
         }
-        url, api_data = utils.mock_out_post_users(1, email, profile)
+        url, api_data = mocks.mock_out_post_users(1, email, profile)
         KagisoUser.objects.create_user(
             email, password, profile=profile)
-        url = utils.mock_out_post_sessions(email, password, 404)
+        url = mocks.mock_out_post_sessions(email, password, 404)
 
         backend = KagisoBackend()
         result = backend.authenticate(email, password)
