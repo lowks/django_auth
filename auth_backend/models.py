@@ -80,8 +80,8 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         # TODO: Look into calling methods when using mommy.make
         # Support model mommy: need to be able to set password at time of
         # creation ...
-        if self.password:
-            self.set_password(self.password)
+        # if self.password:
+            # self.set_password(self.password)
 
         payload = {
             'email': self.email,
