@@ -63,7 +63,7 @@ def mock_out_post_confirm_email(id):
     responses.add(
         responses.POST,
         url,
-        status=204,
+        status=200,
     )
 
     return url

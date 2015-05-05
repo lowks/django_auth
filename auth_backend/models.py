@@ -46,7 +46,7 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         endpoint = 'users/{id}/confirm_email'.format(id=self.id)
         status, data = auth_api_client.call(endpoint, 'POST', payload)
 
-        assert status == 204
+        assert status == 200
 
         self.confirmation_token = None
         self.email_confirmed = timezone.now()
@@ -88,6 +88,8 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
             'password': self.raw_password,
             'profile': self.profile,
         }
+
+        print(payload)
 
         status, data = auth_api_client.call('users', 'POST', payload)
 
