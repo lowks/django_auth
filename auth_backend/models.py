@@ -9,15 +9,15 @@ from jsonfield import JSONField
 from . import auth_api_client
 from .managers import AuthManager
 
-# TODO: possible fields to add to CAS:
-# first_name, last_name, is_staff, is_superuser
-
 
 class KagisoUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
     id = models.IntegerField(primary_key=True)
     email = models.EmailField(max_length=250, unique=True)
+    first_name = models.CharField(blank=True, null=True, max_length=100)
+    last_name = models.CharField(blank=True, null=True, max_length=100)
+    is_staff = models.BooleanField(default=False)
     email_confirmed = models.DateTimeField(null=True)
     profile = JSONField(null=True)
     is_active = models.BooleanField(default=True)
@@ -79,8 +79,12 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     def _create_user_in_db_and_cas(self):
         payload = {
             'email': self.email,
-            'password': self.raw_password,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'is_staff': self.is_staff,
+            'is_superuser': self.is_superuser,
             'profile': self.profile,
+            'password': self.raw_password,
         }
 
         status, data = auth_api_client.call('users', 'POST', payload)
@@ -89,6 +93,10 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
 
         self.id = data['id']
         self.email = data['email']
+        self.first_name = data['first_name']
+        self.last_name = data['last_name']
+        self.is_staff = data['is_staff']
+        self.is_superuser = data['is_superuser']
         self.profile = data['profile']
         self.confirmation_token = data['confirmation_token']
         self.date_joined = parser.parse(data['created'])
@@ -97,6 +105,10 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     def _update_user_in_cas(self):
         payload = {
             'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'is_staff': self.is_staff,
+            'is_superuser': self.is_superuser,
             'profile': self.profile,
         }
 
@@ -106,6 +118,10 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
         assert status == 200
 
         self.email = data['email']
+        self.first_name = data['first_name']
+        self.last_name = data['last_name']
+        self.is_staff = data['is_staff']
+        self.is_superuser = data['is_superuser']
         self.profile = data['profile']
         self.modified = parser.parse(data['modified'])
 

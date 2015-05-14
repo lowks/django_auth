@@ -12,7 +12,7 @@ class KagisoUserTest(TestCase):
         # ----- Create user -----
         email = utils.random_email()
         profile = {
-            'first_name': 'Fred',
+            'age': 15,
         }
         password = 'my_password'
 
@@ -20,6 +20,10 @@ class KagisoUserTest(TestCase):
             models.KagisoUser,
             id=None,
             email=email,
+            first_name='George',
+            last_name='Smith',
+            is_staff=True,
+            is_superuser=True,
             profile=profile,
         )
         user.set_password(password)
@@ -27,7 +31,11 @@ class KagisoUserTest(TestCase):
 
         result = models.KagisoUser.objects.get(id=user.id)
 
-        assert result.email == email
+        assert result.email == user.email
+        assert result.first_name == user.first_name
+        assert result.last_name == user.last_name
+        assert result.is_staff
+        assert result.is_superuser
         assert not result.confirmation_token
         assert result.profile == profile
 
@@ -43,17 +51,27 @@ class KagisoUserTest(TestCase):
 
         # ----- Update user -----
         new_email = utils.random_email()
+        new_first_name = 'Fred'
+        new_last_name = 'Jones'
         new_profile = {
-            'first_name': 'George',
+            'age': 50,
         }
 
         user.email = new_email
+        user.first_name = new_first_name
+        user.last_name = new_last_name
+        user.is_staff = False
+        user.is_superuser = False
         user.profile = new_profile
         user.save()
 
         updated_result = models.KagisoUser.objects.get(id=user.id)
 
         assert updated_result.email == new_email
+        assert updated_result.first_name == new_first_name
+        assert updated_result.last_name == new_last_name
+        assert not updated_result.is_staff
+        assert not updated_result.is_superuser
         assert updated_result.profile == new_profile
 
         # ----- Sign out the user -----

@@ -16,11 +16,23 @@ class KagisoUserTest(TestCase):
         # ------------------------
 
         email = 'test@email.com'
+        first_name = 'Fred'
+        last_name = 'Smith'
+        is_staff = True
+        is_superuser = True
         profile = {
-            'is_superadmin': True
+            'age': 22
         }
 
-        url, api_data = mocks.mock_out_post_users(1, email, profile)
+        url, api_data = mocks.mock_out_post_users(
+            1,
+            email,
+            first_name=first_name,
+            last_name=last_name,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+            profile=profile
+        )
         # ------------------------
         # -------Act--------------
         # ------------------------
@@ -29,6 +41,10 @@ class KagisoUserTest(TestCase):
             models.KagisoUser,
             id=None,
             email=email,
+            first_name=first_name,
+            last_name=last_name,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
             profile=profile,
         )
 
@@ -46,6 +62,10 @@ class KagisoUserTest(TestCase):
 
         assert result.id == api_data['id']
         assert result.email == api_data['email']
+        assert result.first_name == api_data['first_name']
+        assert result.last_name == api_data['last_name']
+        assert result.is_staff == api_data['is_staff']
+        assert result.is_superuser == api_data['is_superuser']
         assert not result.email_confirmed
         assert result.confirmation_token is None
         assert result.profile == api_data['profile']
@@ -62,17 +82,33 @@ class KagisoUserTest(TestCase):
         user = mommy.make(models.KagisoUser, id=None)
 
         email = 'test@email.com'
+        first_name = 'Fred'
+        last_name = 'Smith'
+        is_staff = True
+        is_superuser = True
         profile = {
-            'is_superadmin': True
+            'age': 22
         }
 
-        url, api_data = mocks.mock_out_put_users(1, email, profile)
+        url, api_data = mocks.mock_out_put_users(
+            1,
+            email,
+            first_name=first_name,
+            last_name=last_name,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+            profile=profile
+        )
 
         # ------------------------
         # -------Act--------------
         # ------------------------
 
         user.email = email
+        user.first_name = first_name
+        user.last_name = last_name
+        user.is_staff = is_staff
+        user.is_superuser = is_superuser
         user.profile = profile
         user.save()
 
@@ -86,6 +122,10 @@ class KagisoUserTest(TestCase):
 
         assert result.id == api_data['id']
         assert result.email == api_data['email']
+        assert result.first_name == api_data['first_name']
+        assert result.last_name == api_data['last_name']
+        assert result.is_staff == api_data['is_staff']
+        assert result.is_superuser == api_data['is_superuser']
         assert result.profile == api_data['profile']
         assert result.modified == parser.parse(api_data['modified'])
 
@@ -129,7 +169,11 @@ class KagisoUserTest(TestCase):
     def test_confirm_email(self):
         _, post_data = mocks.mock_out_post_users(1, 'test@email.com')
         user = mommy.make(models.KagisoUser, id=None)
-        mocks.mock_out_put_users(user.id, user.email, user.profile)
+        mocks.mock_out_put_users(
+            user.id,
+            user.email,
+            profile=user.profile
+        )
         url = mocks.mock_out_post_confirm_email(user.id)
 
         user.confirm_email(post_data['confirmation_token'])
