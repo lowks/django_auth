@@ -15,7 +15,11 @@ class KagisoBackendTest(TestCase):
         profile = {
             'first_name': 'Fred'
         }
-        url, api_data = mocks.mock_out_post_users(1, email, profile)
+        url, api_data = mocks.mock_out_post_users(
+            1,
+            email,
+            profile=profile
+        )
         user = KagisoUser.objects.create_user(
             email, password, profile=profile)
         url = mocks.mock_out_post_sessions(email, password, 200)
@@ -45,12 +49,8 @@ class KagisoBackendTest(TestCase):
     def test_authenticate_invalid_credentials_returns_none(self):
         email = 'test@email.com'
         password = 'incorrect'
-        profile = {
-            'first_name': 'Fred'
-        }
-        url, api_data = mocks.mock_out_post_users(1, email, profile)
-        KagisoUser.objects.create_user(
-            email, password, profile=profile)
+        url, api_data = mocks.mock_out_post_users(1, email)
+        KagisoUser.objects.create_user(email, password)
         url = mocks.mock_out_post_sessions(email, password, 404)
 
         backend = KagisoBackend()

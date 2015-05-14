@@ -10,4 +10,6 @@ class AuthManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password, **other_fields):
-        return self.create_user(email, password, is_superuser=True)
+        other_fields = other_fields or {}
+        other_fields['is_superuser'] = True
+        return self.create_user(email, password, **other_fields)
