@@ -35,6 +35,14 @@ class KagisoUser(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.email
 
+    @property
+    def username(self):
+        return self.email
+
+    @username.setter
+    def username(self, value):
+        self.email = value
+
     def set_password(self, raw_password):
         # We don't want to save passwords locally
         self.set_unusable_password()
