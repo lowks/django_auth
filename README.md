@@ -28,7 +28,7 @@ AUTHENTICATION_BACKENDS = (
 Then specify that Django is to use the `KagisoUser` model as its user model.
 
 ```
-AUTH_USER_MODEL = 'auth_backend.models.KagisoUser'
+AUTH_USER_MODEL = 'auth_backend.KagisoUser'
 ```
 
 Finally you need to add your CAS credentials to settings.py.
